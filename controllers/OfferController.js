@@ -48,3 +48,19 @@ exports.getOfferDetails = async (req, res) => {
     });
   }
 };
+
+exports.deleteOffer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await OfferRepository.deleteOffer(id);
+    res.status(200).json({
+      status: 200,
+      message: result.message,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: err.message,
+    });
+  }
+};

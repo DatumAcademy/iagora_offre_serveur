@@ -139,3 +139,19 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
       throw new Error(err.message);
     }
   };
+
+  exports.deleteOffer = async (offerId) => {
+    try {
+      const result = await Offer.updateOne(
+        { "offers.id": offerId },
+        { $pull: { offers: { id: offerId } } }
+      );
+  
+      if (result.modifiedCount === 0) {
+        throw new Error("Offer not found or could not be deleted");
+      }
+      return { message: "Offer successfully deleted" };
+    } catch (err) {
+      throw new Error('Error deleting the offer: ' + err.message);
+    }
+  };
