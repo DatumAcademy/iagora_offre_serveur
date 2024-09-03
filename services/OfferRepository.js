@@ -64,6 +64,9 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
   }
 
   function formatToDateString(date) {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      return "";
+    }
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
@@ -74,16 +77,17 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     try {
       const { type, offers } = offerData;
 
-      const offersWithFormattedDates = offers.map(offer => ({
-        ...offer,
-        publicationdate: offer.publicationdate 
-          ? formatToDateString(new Date(convertToFormattedDate(offer.publicationdate))) 
-          : formatToDateString(new Date()),
-        deadlinedate: offer.deadlinedate 
-          ? formatToDateString(new Date(convertToFormattedDate(offer.deadlinedate))) 
-          : formatToDateString(new Date()),
-        id: new mongoose.Types.ObjectId()
-      }));
+      const offersWithFormattedDates = offers.map(offer => {
+        const publicationDate = offer.publicationdate ? new Date(offer.publicationdate) : new Date();
+        const deadlineDate = offer.deadlinedate ? new Date(offer.deadlinedate) : null;
+  
+        return {
+          ...offer,
+          publicationdate: formatToDateString(publicationDate),
+          deadlinedate: deadlineDate ? formatToDateString(deadlineDate) : "",
+          id: new mongoose.Types.ObjectId()
+        };
+      });
 
       let existingOffer = await Offer.findOne({ type: type });
   
@@ -124,7 +128,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
         id: offerDetails.id,
         label: offerDetails.label,
         company: offerDetails.company,
-        shortdescription: offerDetails.shortDescription,
+        shortdescription: offerDetails.shortdescription,
         skills: offerDetails.skills,
         contract: offerDetails.contract,
         type: offerDetails.type,

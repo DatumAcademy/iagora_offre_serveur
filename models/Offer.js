@@ -11,7 +11,7 @@ const detailOfferSchema = new mongoose.Schema({
     id: String,
     label: String,
     company: String,
-    shortDescription : String,
+    shortdescription : String,
     skills: String,
     contract : String,
     type: String,
