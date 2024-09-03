@@ -32,3 +32,19 @@ exports.createOffer = async (req, res) => {
     });
   }
 };
+
+exports.getOfferDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const offer = await OfferRepository.getOfferDetails(id);
+    res.status(200).json({
+      status: 200,
+      data: offer,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: err.message,
+    });
+  }
+};

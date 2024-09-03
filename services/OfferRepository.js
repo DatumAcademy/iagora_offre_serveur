@@ -1,6 +1,7 @@
 var { Offer } = require("../models/Offer");
 var configuraation = require('../configuration/SECRET');
 const mongoose = require('mongoose');
+var ObjectID = require("mongoose").Types.ObjectId;
 
 exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DESC', sortDeadlineDate = 'DESC') => {
     const pageNum = Number(page) || 0;
@@ -91,5 +92,39 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
       }
     } catch (err) {
       throw new Error('Error creating the offer: ' + err.message);
+    }
+  };
+
+  exports.getOfferDetails = async (offerId) => {
+    try {
+      const offer = await Offer.findOne(
+        { "offers.id": offerId },
+        { "offers.$": 1, type: 1 }
+      );
+  
+      if (!offer) {
+        throw new Error("Offer not found");
+      }
+
+      const offerDetails = offer.offers[0];
+      const typeOffre = offer.type;
+  
+      return {
+        id: offerDetails.id,
+        label: offerDetails.label,
+        company: offerDetails.company,
+        shortdescription: offerDetails.shortDescription,
+        skills: offerDetails.skills,
+        contract: offerDetails.contract,
+        type: offerDetails.type,
+        city: offerDetails.city,
+        publicationdate: offerDetails.publicationdate,
+        deadlinedate: offerDetails.deadlinedate,
+        minexperience: offerDetails.minexperience,
+        language: offerDetails.language,
+        typeOffre: typeOffre
+      };
+    } catch (err) {
+      throw new Error(err.message);
     }
   };

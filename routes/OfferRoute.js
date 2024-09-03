@@ -4,5 +4,6 @@ const offerController = require('../controllers/OfferController');
 
 router.get('/search', offerController.searchOffers);
 router.post('/create', offerController.createOffer);
+router.get('/:id', offerController.getOfferDetails);
 
 module.exports = router;
