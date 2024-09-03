@@ -16,8 +16,8 @@ const detailOfferSchema = new mongoose.Schema({
     contract : String,
     type: String,
     city: String,
-    publicationdate : Date,
-    deadlinedate : Date,
+    publicationdate : String,
+    deadlinedate : String,
     minexperience : Number,
     language: languageSchema
 });

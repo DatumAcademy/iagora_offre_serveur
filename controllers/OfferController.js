@@ -16,3 +16,19 @@ exports.searchOffers = async (req, res) => {
     });
   } catch (err) {}
 };
+
+exports.createOffer = async (req, res) => {
+  try {
+    const offerData = req.body; 
+    const newOffer = await OfferRepository.createOffer(offerData);
+    res.status(201).json({
+      status: 201,
+      message: "Offre créer avec succés!"
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 500,
+      message: err.message,
+    });
+  }
+};

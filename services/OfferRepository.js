@@ -1,6 +1,6 @@
 var { Offer } = require("../models/Offer");
 var configuraation = require('../configuration/SECRET');
-var ObjectID = require("mongoose").Types.ObjectId;
+const mongoose = require('mongoose');
 
 exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DESC', sortDeadlineDate = 'DESC') => {
     const pageNum = Number(page) || 0;
@@ -55,4 +55,41 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
       totalResults: total,
       offers,
     };
+  };
+
+  function convertToFormattedDate(dateString) {
+    const [day, month, year] = dateString.split('/');
+    return `${day}-${month}-${year}`;
+  }
+
+  exports.createOffer = async (offerData) => {
+    try {
+      const { type, offers } = offerData;
+
+      const offersWithFormattedDates = offers.map(offer => ({
+        ...offer,
+        publicationdate: convertToFormattedDate(offer.publicationdate),
+        deadlinedate: convertToFormattedDate(offer.deadlinedate),
+        id: new mongoose.Types.ObjectId()
+      }));
+
+      let existingOffer = await Offer.findOne({ type: type });
+  
+      if (existingOffer) {
+        existingOffer.offers.push(...offersWithFormattedDates);
+        await existingOffer.save();
+        return existingOffer;
+      } else {
+        const newOffer = new Offer({
+          _id: new mongoose.Types.ObjectId(),
+          type: type,
+          offers: offersWithFormattedDates
+        });
+  
+        await newOffer.save();
+        return newOffer;
+      }
+    } catch (err) {
+      throw new Error('Error creating the offer: ' + err.message);
+    }
   };
