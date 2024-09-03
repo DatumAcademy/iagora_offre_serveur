@@ -63,14 +63,25 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     return `${day}-${month}-${year}`;
   }
 
+  function formatToDateString(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
   exports.createOffer = async (offerData) => {
     try {
       const { type, offers } = offerData;
 
       const offersWithFormattedDates = offers.map(offer => ({
         ...offer,
-        publicationdate: convertToFormattedDate(offer.publicationdate),
-        deadlinedate: convertToFormattedDate(offer.deadlinedate),
+        publicationdate: offer.publicationdate 
+          ? formatToDateString(new Date(convertToFormattedDate(offer.publicationdate))) 
+          : formatToDateString(new Date()),
+        deadlinedate: offer.deadlinedate 
+          ? formatToDateString(new Date(convertToFormattedDate(offer.deadlinedate))) 
+          : formatToDateString(new Date()),
         id: new mongoose.Types.ObjectId()
       }));
 
