@@ -106,7 +106,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
         return newOffer;
       }
     } catch (err) {
-      throw new Error('Error creating the offer: ' + err.message);
+      throw new Error(err.message);
     }
   };
 
@@ -118,7 +118,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
       );
   
       if (!offer) {
-        throw new Error("Offer not found");
+        throw new Error("Aucune offre correspondante!");
       }
 
       const offerDetails = offer.offers[0];
@@ -152,10 +152,43 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
       );
   
       if (result.modifiedCount === 0) {
-        throw new Error("Offer not found or could not be deleted");
+        throw new Error("Offre non trouvée ou n'a pas pu être supprimée!");
       }
-      return { message: "Offer successfully deleted" };
+      return { message: "Offre supprimée avec succès!" };
     } catch (err) {
-      throw new Error('Error deleting the offer: ' + err.message);
+      throw new Error(err.message);
     }
   };
+
+  exports.getStatistique = async () => {
+    try {
+      const result = await Offer.aggregate([
+        { $unwind: "$offers" },
+        {
+          $project: {
+            skillsArray: { $split: ["$offers.skills", ", "] },
+            candidateCount: { $size: "$offers.candidate" }
+          }
+        },
+        { $unwind: "$skillsArray" },
+        {
+          $group: {
+            _id: "$skillsArray",
+            totalCandidates: { $sum: "$candidateCount" }
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            skill: "$_id",
+            result: "$totalCandidates"
+          }
+        }
+      ]);
+  
+      return result;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
+  
