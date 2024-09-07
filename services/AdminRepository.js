@@ -1,9 +1,13 @@
 var { Admin } = require("../models/Admin");
-var configuraation = require('../configuration/SECRET');
+var configuration = require('../configuration/SECRET');
 const mongoose = require('mongoose');
 var ObjectID = require("mongoose").Types.ObjectId;
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 exports.createAdmin = async (adminData) => {
+    const hashedPassword = await bcrypt.hash(adminData.password, 10);
+    adminData.password = hashedPassword;
     const admin = new Admin(adminData);
     return await admin.save();
 };
@@ -46,4 +50,33 @@ exports.updateAdmin = async (id, adminData) => {
 
 exports.deleteAdmin = async (id) => {
     return await Admin.findByIdAndDelete(id);
+};
+
+exports.loginAdmin = async (email, password) => {
+    const admin = await Admin.findOne({ email: email });
+    if (!admin) {
+        throw new Error('Admin non trouvé');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) {
+        throw new Error('Mot de passe incorrect');
+    }
+
+    const token = jwt.sign(
+        { id: admin._id, email: admin.email }, 
+        configuration.secret,
+        { expiresIn: configuration.time }
+    );
+
+    return {
+        message: 'Authentification réussie',
+        token: token,
+        admin: {
+            id: admin._id,
+            first_name: admin.first_name,
+            last_name: admin.last_name,
+            email: admin.email
+        }
+    };
 };

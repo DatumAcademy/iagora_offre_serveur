@@ -7,5 +7,6 @@ router.get('/search', adminController.getAdmins);
 router.get('/:id', adminController.getAdminById);
 router.put('/:id', adminController.updateAdmin);
 router.delete('/:id', adminController.deleteAdmin);
+router.post('/login', adminController.loginAdmin);
 
 module.exports = router;
