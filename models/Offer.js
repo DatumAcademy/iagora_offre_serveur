@@ -7,6 +7,10 @@ const languageSchema = new mongoose.Schema({
     level: String
 });
 
+const candidateSchema = new mongoose.Schema({
+    student : Number
+});
+
 const detailOfferSchema = new mongoose.Schema({
     id: String,
     label: String,
@@ -19,7 +23,8 @@ const detailOfferSchema = new mongoose.Schema({
     publicationdate : String,
     deadlinedate : String,
     minexperience : Number,
-    language: languageSchema
+    language: languageSchema,
+    candidate : [candidateSchema]
 });
 
 
