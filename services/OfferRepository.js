@@ -191,4 +191,64 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
       throw new Error(err.message);
     }
   };
+
+  exports.getStudentCandidate = async (studentId, page = 1, pageSize = 20) => {
+    try {
+      const pageNum = Number(page) || 1;
+      const pageSizeNum = Number(pageSize) || 20;
+      const studentIdNum = parseInt(studentId, 10);
+
+      const totalResults = await Offer.aggregate([
+        { $unwind: "$offers" },
+        { $match: { "offers.candidate.student": studentIdNum } },
+        { $count: "total" }
+      ]);
+  
+      const total = totalResults.length > 0 ? totalResults[0].total : 0;
+      const totalPages = Math.ceil(total / pageSizeNum);
+
+      const applications = await Offer.aggregate([
+        { $unwind: "$offers" },
+        {
+          $match: {
+            "offers.candidate.student": studentIdNum
+          }
+        },
+        { $skip: (pageNum - 1) * pageSizeNum },
+        { $limit: pageSizeNum },
+        {
+          $project: {
+            _id: 0,
+            id: "$offers.id",
+            label: "$offers.label",
+            company: "$offers.company",
+            shortdescription: "$offers.shortdescription",
+            skills: "$offers.skills",
+            contract: "$offers.contract",
+            type: "$offers.type",
+            city: "$offers.city",
+            publicationdate: "$offers.publicationdate",
+            deadlinedate: "$offers.deadlinedate",
+            minexperience: "$offers.minexperience",
+            language: "$offers.language",
+            candidate: "$offers.candidate",
+            typeOffre: "$type"
+          }
+        }
+      ]);
+  
+      return {
+        status: 200,
+        data: {
+          totalPages: totalPages,
+          currentPage: pageNum,
+          pageSize: pageSizeNum,
+          totalResults: total,
+          offers: applications
+        }
+      };
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  };
   

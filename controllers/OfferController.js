@@ -73,3 +73,14 @@ exports.getStatistique = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+exports.getStudentCandidate = async (req, res) => {
+  try {
+    const { numETU } = req.params;
+    const { page, pageSize } = req.query;
+    const result = await OfferRepository.getStudentCandidate(numETU, page, pageSize);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
