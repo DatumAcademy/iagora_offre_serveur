@@ -6,6 +6,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var offerRouter = require('./routes/OfferRoute');
+var adminRouter = require('./routes/AdminRouter');
 
 var app = express();
 
@@ -22,6 +23,7 @@ require("./configuration/database");
 
 app.use('/', indexRouter);
 app.use('/OffreServeur', offerRouter);
+app.use('/OffreServeur/Admin',adminRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));
