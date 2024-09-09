@@ -31,3 +31,23 @@ exports.authenticateV1 = async (req, res) => {
       });
     }
 };
+
+exports.completeRegistration = async (req, res) => {
+  const { numETU,email } = req.params;
+  const updateData = req.body;
+
+  try {
+    const result = await studentService.completeRegistration(numETU,email, updateData);
+
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: 'Erreur lors de la complétion de l\'inscription.'
+    });
+  }
+};

@@ -64,3 +64,34 @@ exports.verifyStudentInfos = async (numETU, email) => {
     };
   }
 };
+
+exports.completeRegistration = async (numETU, email, updateData) => {
+  try {
+    const student = await Student.findOne({ numETU: numETU,email:email });
+
+    if (!student) {
+      return {
+        success: false,
+        message: 'Étudiant non trouvé!'
+      };
+    }
+
+    student.age = updateData.age || student.age || 0;
+    student.skills = student.skills.concat(updateData.skills || []);
+    student.language = student.language.concat(updateData.language || []);
+    student.experience = student.experience.concat(updateData.experience || []);
+
+    await student.save();
+
+    return {
+      success: true,
+      message: 'Inscription complétée avec succès.',
+      data: student
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Erreur lors de la mise à jour de l\'étudiant : ' + error.message
+    };
+  }
+};
