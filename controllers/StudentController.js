@@ -51,3 +51,20 @@ exports.completeRegistration = async (req, res) => {
     });
   }
 };
+
+exports.loginStudent = async (req, res) => {
+  const { numETU, email, password } = req.body;
+  try {
+    const result = await studentService.loginStudent(numETU, email, password);
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: 'Erreur lors de la connexion de l\'étudiant'
+    });
+  }
+};
