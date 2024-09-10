@@ -10,6 +10,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     const match = {
       ...(filters.type && { type: filters.type }),
       ...(filters.skills && { "offers.skills": { $regex: filters.skills, $options: 'i' } }),
+      ...(filters.label && { "offers.label": { $regex: filters.label, $options: 'i' } }),
       ...(filters.city && { "offers.city": filters.city }),
       ...(filters.contract && { "offers.contract": filters.contract }),
       ...(filters.minexperience && { "offers.minexperience": { $gte: Number(filters.minexperience) } }),
@@ -36,7 +37,20 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     const offers = await Offer.aggregate([
       { $unwind: "$offers" },
       { $match: match },
-      { $sort: { "offers.publicationdate": -1} },
+      {
+        $addFields: {
+          "offers.sortedPublicationDate": {
+            $concat: [
+              { $substr: ["$offers.publicationdate", 6, 4] }, 
+              "-",
+              { $substr: ["$offers.publicationdate", 3, 2] },
+              "-",
+              { $substr: ["$offers.publicationdate", 0, 2] }
+            ]
+          }
+        }
+      },
+      { $sort: { "offers.sortedPublicationDate": -1 } },
       { $skip: pageNum * pageSizeNum },
       { $limit: pageSizeNum },
       {
