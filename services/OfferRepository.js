@@ -36,7 +36,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     const offers = await Offer.aggregate([
       { $unwind: "$offers" },
       { $match: match },
-      { $sort: { "offers.publicationdate": sortOrderPublicationDate, "offers.deadlinedate": sortOrderDeadlineDate } },
+      { $sort: { "offers.publicationdate": -1} },
       { $skip: pageNum * pageSizeNum },
       { $limit: pageSizeNum },
       {
@@ -58,11 +58,6 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     };
   };
 
-  function convertToFormattedDate(dateString) {
-    const [day, month, year] = dateString.split('/');
-    return `${day}-${month}-${year}`;
-  }
-
   function formatToDateString(date) {
     if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
       return "";
@@ -70,7 +65,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${day}/${month}/${year}`;
   }
 
   exports.createOffer = async (offerData) => {
@@ -126,7 +121,7 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
   
       return {
         id: offerDetails.id,
-        label: offerDetails.label,
+        label: offerDetails.label,  
         company: offerDetails.company,
         shortdescription: offerDetails.shortdescription,
         skills: offerDetails.skills,
