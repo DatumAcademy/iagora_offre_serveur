@@ -194,13 +194,36 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
           }
         }
       ]);
+
+      const totalOffers = await Offer.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalOffers: { $sum: { $size: "$offers" } }
+          }
+        }
+      ]);
+
+      const totalCandidates = await Offer.aggregate([
+        { $unwind: "$offers" },
+        {
+          $group: {
+            _id: null,
+            totalCandidates: { $sum: { $size: "$offers.candidate" } }
+          }
+        }
+      ]);
   
-      return result;
+      return {
+        totalOffers: totalOffers.length > 0 ? totalOffers[0].totalOffers : 0,
+        totalCandidates: totalCandidates.length > 0 ? totalCandidates[0].totalCandidates : 0,
+        data: result
+      };
     } catch (err) {
       throw new Error(err.message);
     }
   };
-
+  
   exports.getStudentCandidate = async (studentId, page = 1, pageSize = 20) => {
     try {
       const pageNum = Number(page) || 1;
