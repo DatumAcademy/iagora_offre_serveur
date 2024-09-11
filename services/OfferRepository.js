@@ -146,7 +146,8 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
         deadlinedate: offerDetails.deadlinedate,
         minexperience: offerDetails.minexperience,
         language: offerDetails.language,
-        typeOffre: typeOffre
+        typeOffre: typeOffre,
+        candidate : offerDetails.candidate
       };
     } catch (err) {
       throw new Error(err.message);
@@ -224,15 +225,21 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
     }
   };
   
-  exports.getStudentCandidate = async (studentId, page = 1, pageSize = 20) => {
+  exports.getStudentCandidate = async (filters,studentId, page = 1, pageSize = 20) => {
     try {
       const pageNum = Number(page) || 1;
       const pageSizeNum = Number(pageSize) || 20;
       const studentIdNum = parseInt(studentId, 10);
 
+      const match = {
+        ...(filters.type && { type: filters.type }),
+        ...(filters.skills && { "offers.skills": { $regex: filters.skills, $options: 'i' } }),
+        ...(filters.label && { "offers.label": { $regex: filters.label, $options: 'i' } })
+      };
+
       const totalResults = await Offer.aggregate([
         { $unwind: "$offers" },
-        { $match: { "offers.candidate.student": studentIdNum } },
+        { $match: { "offers.candidate.student": studentIdNum, ...match }},
         { $count: "total" }
       ]);
   
@@ -243,7 +250,8 @@ exports.searchOffers = async (filters, page, pageSize, sortPublicationDate = 'DE
         { $unwind: "$offers" },
         {
           $match: {
-            "offers.candidate.student": studentIdNum
+            "offers.candidate.student": studentIdNum,
+            ...match
           }
         },
         { $skip: (pageNum - 1) * pageSizeNum },

@@ -68,3 +68,20 @@ exports.loginStudent = async (req, res) => {
     });
   }
 };
+
+exports.getStudent = async (req, res) => {
+  const { numETU, email} = req.params;
+  try {
+    const result = await studentService.getStudent(numETU, email);
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: 'Erreur lors de la connexion de l\'étudiant'
+    });
+  }
+};

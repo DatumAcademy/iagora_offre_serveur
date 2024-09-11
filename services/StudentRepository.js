@@ -147,3 +147,27 @@ exports.loginStudent = async (numETU, email, password) => {
     };
   }
 };
+
+exports.getStudent = async (numETU, email) => {
+  try {
+    const student = await Student.findOne({ numETU: numETU, email: email });
+
+    if (!student) {
+      return {
+        success: false,
+        message: 'Étudiant non trouvé!'
+      };
+    }
+
+    return {
+      success: true,
+      student: student
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Erreur lors de la récupération de l\'étudiant : ' + error.message
+    };
+  }
+};
