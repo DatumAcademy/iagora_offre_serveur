@@ -171,3 +171,26 @@ exports.getStudent = async (numETU, email) => {
     };
   }
 };
+
+exports.getStudents = async (page = 0, pageSize = 10) => {
+  const pageNum = Number(page) || 0;
+  const pageSizeNum = Number(pageSize) || 10;
+  const totalResults = await Student.countDocuments();
+
+  let totalPages = Math.floor(totalResults / pageSizeNum);
+  if (totalResults % pageSizeNum !== 0) {
+      totalPages += 1;
+  }
+
+  const students = await Student.find()
+      .skip(pageNum * pageSizeNum)
+      .limit(pageSizeNum);
+
+  return {
+      totalPages,
+      currentPage: pageNum,
+      pageSize: pageSizeNum,
+      totalResults,
+      students,
+  };
+};

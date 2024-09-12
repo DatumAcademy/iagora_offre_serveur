@@ -85,3 +85,13 @@ exports.getStudent = async (req, res) => {
     });
   }
 };
+
+exports.getStudents = async (req, res) => {
+  try {
+      const { page, pageSize } = req.query;
+      const result = await studentService.getStudents(page, pageSize);
+      res.status(200).json(result);
+  } catch (error) {
+      res.status(400).json({ message: error.message });
+  }
+};
