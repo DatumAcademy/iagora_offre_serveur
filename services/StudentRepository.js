@@ -194,3 +194,31 @@ exports.getStudents = async (page = 0, pageSize = 10) => {
       students,
   };
 };
+
+
+exports.recommandation = async (idStudent) => {
+  try {
+    const response = await axios.get(`https://iagora-offre-model-recommandation.onrender.com/recommander`, {
+      params: {
+        student_id: idStudent,
+      },
+    });
+
+    if (response.status === 200) {
+      return {
+        success: true,
+        studentData: response.data
+      };
+    } else {
+      return {
+        success: false,
+        message: response.data.message || "Une erreur s'est produite"
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response ? error.response.data : 'Erreur lors de la récuperation des offres!'
+    };
+  }
+};

@@ -95,3 +95,14 @@ exports.getStudents = async (req, res) => {
       res.status(400).json({ message: error.message });
   }
 };
+
+
+exports.recommandation = async (req, res) => {
+  const {id} = req.params;
+  try {
+    const result = await studentService.recommandation(id);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
