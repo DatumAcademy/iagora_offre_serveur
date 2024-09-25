@@ -34,6 +34,6 @@ const OfferSchema = new Schema({
     offers : [detailOfferSchema]
 });
 
-let Offer = mongoose.model("Offer", OfferSchema,"Offer");
+let Offer = mongoose.model("MergedOffers", OfferSchema,"MergedOffers");
 
 module.exports = {Offer}
