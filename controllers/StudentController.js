@@ -106,3 +106,27 @@ exports.recommandation = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+exports.generateAndDownloadCV = async (req, res) => {
+  try {
+    const result = await studentService.generateAndDownloadCV(req, res);
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+  }
+};
+
+exports.telechargerCV = async (req, res) => {
+  try {
+    const result = await studentService.downloadCV(req, res);
+    if (result.success) {
+      res.status(200).json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+  }
+};

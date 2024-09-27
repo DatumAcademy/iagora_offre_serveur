@@ -9,6 +9,8 @@ var indexRouter = require('./routes/index');
 var offerRouter = require('./routes/OfferRoute');
 var adminRouter = require('./routes/AdminRouter');
 var studentRouter = require('./routes/StudentRoute');
+var dwRouter = require('./routes/Download');
+
 
 var app = express();
 
@@ -28,6 +30,7 @@ app.use('/', indexRouter);
 app.use('/OffreServeur', offerRouter);
 app.use('/OffreServeur/Admin',adminRouter);
 app.use('/OffreServeur/student',studentRouter);
+app.use('/OffreServeur/dw',dwRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));
