@@ -360,7 +360,12 @@ exports.generateAndDownloadCV = async (req, res) => {
 
       const html = generateCVHTML(student);
 
-      const browser = await puppeteer.launch({ headless: true });
+      //const browser = await puppeteer.launch({ headless: true });
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      
       const page = await browser.newPage();
 
       await page.setContent(html, { waitUntil: 'networkidle0' });
