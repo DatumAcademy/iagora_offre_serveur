@@ -11,10 +11,13 @@ npm install
 # Gestion du cache Puppeteer
 PUPPETEER_CACHE_DIR="${PUPPETEER_CACHE_DIR:-$XDG_CACHE_HOME/puppeteer}"
 
-if [[ -d "$XDG_CACHE_HOME/puppeteer" ]]; then
+# Assurez-vous que les répertoires ne se copient pas eux-mêmes
+if [[ -d "$XDG_CACHE_HOME/puppeteer" && "$XDG_CACHE_HOME/puppeteer" != "$PUPPETEER_CACHE_DIR" ]]; then
   echo "...Copying Puppeteer Cache from Build Cache"
   cp -R "$XDG_CACHE_HOME/puppeteer" "$PUPPETEER_CACHE_DIR"
-else
+elif [[ -d "$PUPPETEER_CACHE_DIR" && "$XDG_CACHE_HOME/puppeteer" != "$PUPPETEER_CACHE_DIR" ]]; then
   echo "...Storing Puppeteer Cache in Build Cache"
   cp -R "$PUPPETEER_CACHE_DIR" "$XDG_CACHE_HOME/puppeteer"
+else
+  echo "No cache copying necessary."
 fi
