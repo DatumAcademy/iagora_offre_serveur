@@ -3,7 +3,6 @@ var { Student } = require("../models/Student");
 const jwt = require('jsonwebtoken');
 const configuration = require('../configuration/SECRET');
 const bcrypt = require('bcrypt');
-const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
 const pdf = require('html-pdf');
