@@ -244,20 +244,23 @@ const generateCVHTML = (student) => {
               padding: 0;
               background-color: #f4f4f4;
               color: #333;
+              font-size: 14px;
           }
           .container {
-              max-width: 900px;
-              height : 1080px;
+              width: 100%;
+              height: 1105px;
               background-color: white;
               display: flex;
-              box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-              padding: 20px;
+              flex-direction: row;
+              padding: 0;
+              box-sizing: border-box;
           }
           .sidebar {
               background-color: #2a3e50;
               color: white;
               padding: 30px;
               width: 30%;
+              height: 1045px;
           }
           .sidebar h1 {
               font-size: 32px;
@@ -279,23 +282,26 @@ const generateCVHTML = (student) => {
               margin-right: 10px;
           }
           .main-content {
-              padding: 30px;
+              padding: 20px;
               width: 70%;
+              height : 1045px;
+              box-sizing: border-box;
           }
           .main-content h2 {
               color: #2a3e50;
-              font-size: 24px;
+              font-size: 20px;
               border-bottom: 2px solid #2a3e50;
               padding-bottom: 5px;
-              margin-bottom: 20px;
+              margin-bottom: 15px;
           }
           .main-content h3 {
-              font-size: 18px;
+              font-size: 16px;
               margin: 10px 0 5px 0;
               font-weight: normal;
           }
           .main-content p {
               margin: 5px 0;
+              font-size: 14px;
           }
           .skills ul {
               list-style: none;
@@ -303,10 +309,11 @@ const generateCVHTML = (student) => {
           }
           .skills ul li {
               display: inline-block;
-              margin-right: 20px;
+              margin-right: 15px;
           }
           .poste {
               font-weight: bold;
+              font-size: 16px;
           }
       </style>
   </head>
@@ -377,7 +384,17 @@ exports.generateAndDownloadCV = async (req, res) => {
       fs.mkdirSync(pdfDir, { recursive: true });
     }
 
-    await page.pdf({ path: pdfPath, format: 'A4' });
+    await page.pdf({
+      path: pdfPath,
+      format: 'A4',
+      printBackground: true,
+      margin: {
+          top: '10px',
+          bottom: '10px',
+          left: '10px',
+          right: '10px'
+      }
+    });
     await browser.close();
 
     res.status(200).json({
