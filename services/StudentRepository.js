@@ -383,7 +383,7 @@ exports.generateAndDownloadCV = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'CV généré avec succès',
-      downloadLink: `${req.protocol}://${req.get('host')}/generated/${student.first_name}_${student.last_name}_CV.pdf`
+      downloadLink: `${req.protocol}://${req.get('host')}/OffreServeur/dw/download/CV/${student.first_name}_${student.last_name}_CV.pdf`
     });
   } catch (error) {
     res.status(500).json({
