@@ -130,3 +130,13 @@ exports.telechargerCV = async (req, res) => {
   } catch (error) {
   }
 };
+
+exports.applyToOfferController = async (req, res) => {
+  const { studentId, offerId } = req.params;
+  const result = await studentService.applyToOffer(studentId, offerId);
+  if (result.success) {
+    return res.status(200).json(result);
+  } else {
+    return res.status(400).json(result);
+  }
+};

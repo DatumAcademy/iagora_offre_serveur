@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
+var { Offer } = require("../models/Offer");
 
 exports.insertStudentAfterLogin = async (studentData) => {
     try {
@@ -422,5 +423,50 @@ exports.downloadCV = async (req, res) => {
           success: false,
           message: 'Fichier non trouvé'
       });
+  }
+};
+
+exports.applyToOffer = async (studentId, offerId) => {
+  try {
+    const student = await Student.findOne({ numETU: studentId });
+    const offer = await Offer.findOne(
+      { "offers.id": offerId },
+      { "offers.$": 1, type: 1 }
+    );
+
+    if (!student || !offer) {
+      return {
+        success: false,
+        message: 'Étudiant ou offre introuvable'
+      };
+    }
+
+    const alreadyApplied = await Offer.findOne({
+      "offers.id": offerId,
+      "offers.candidate.student": studentId
+    });
+
+    if (alreadyApplied) {
+      return {
+        success: false,
+        message: 'Vous avez déjà postulé à cette offre'
+      };
+    }
+
+    await Offer.updateOne(
+      { "offers.id": offerId },
+      { $push: { "offers.$.candidate": { student: studentId } } }
+    );
+
+    return {
+      success: true,
+      message: 'Candidature soumise avec succès'
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Erreur lors de la candidature : ' + error.message
+    };
   }
 };
