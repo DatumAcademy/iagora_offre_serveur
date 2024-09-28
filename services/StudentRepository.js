@@ -3,9 +3,9 @@ var { Student } = require("../models/Student");
 const jwt = require('jsonwebtoken');
 const configuration = require('../configuration/SECRET');
 const bcrypt = require('bcrypt');
+const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
-const pdf = require('html-pdf');
 
 exports.insertStudentAfterLogin = async (studentData) => {
     try {
@@ -247,23 +247,17 @@ const generateCVHTML = (student) => {
           }
           .container {
               max-width: 900px;
+              height : 1080px;
               background-color: white;
+              display: flex;
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
               padding: 20px;
-              overflow: hidden;
           }
           .sidebar {
               background-color: #2a3e50;
               color: white;
               padding: 30px;
-              width: 25%;
-              height : 1195px;
-              float: left;
-          }
-          .main-content {
-              padding: 30px;
-              width: 60%;
-              float: right;
+              width: 30%;
           }
           .sidebar h1 {
               font-size: 32px;
@@ -272,6 +266,10 @@ const generateCVHTML = (student) => {
           .sidebar p {
               margin: 10px 0;
           }
+          .sidebar a {
+              color: white;
+              text-decoration: none;
+          }
           .sidebar .icon-text {
               display: flex;
               align-items: center;
@@ -279,6 +277,10 @@ const generateCVHTML = (student) => {
           }
           .sidebar .icon-text i {
               margin-right: 10px;
+          }
+          .main-content {
+              padding: 30px;
+              width: 70%;
           }
           .main-content h2 {
               color: #2a3e50;
@@ -350,29 +352,39 @@ exports.generateAndDownloadCV = async (req, res) => {
   const student = await Student.findOne({ numETU: numETU, email: email });
 
   if (!student) {
-      return res.status(404).json({
-          success: false,
-          message: "Étudiant non trouvé avec le numéro et l'email fournis."
-      });
+    return res.status(404).json({
+      success: false,
+      message: "Étudiant non trouvé avec le numéro et l'email fournis."
+    });
   }
 
   const html = generateCVHTML(student);
 
-  const options = {
-    format: 'A4',
-    orientation: 'portrait',
-    border: '10mm'
-  };
+  try {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
 
-  pdf.create(html, options).toFile(path.join(__dirname, `../generated/${student.first_name}_${student.last_name}_CV.pdf`), (err, resPdf) => {
-    if (err) return res.status(500).json({ success: false, message: 'Erreur lors de la génération du PDF', error: err.message });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    const pdfPath = path.join(__dirname, `../generated/${student.first_name}_${student.last_name}_CV.pdf`);
+    await page.pdf({ path: pdfPath, format: 'A4' });
+
+    await browser.close();
 
     res.status(200).json({
       success: true,
       message: 'CV généré avec succès',
-      downloadLink: `${req.protocol}://${req.get('host')}/OffreServeur/dw/download/CV/${student.first_name}_${student.last_name}_CV.pdf`
+      downloadLink: `${req.protocol}://${req.get('host')}/generated/${student.first_name}_${student.last_name}_CV.pdf`
     });
-  });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la génération du CV',
+      error: error.message
+    });
+  }
 };
 
 exports.downloadCV = async (req, res) => {
