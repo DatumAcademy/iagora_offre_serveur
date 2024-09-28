@@ -363,9 +363,10 @@ exports.generateAndDownloadCV = async (req, res) => {
       //const browser = await puppeteer.launch({ headless: true });
       const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      }); 
-      
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: process.env.CHROME_BIN || null
+      });
+      console.log("PATH /////// ",process.env.CHROME_BIN || null)
       const page = await browser.newPage();
 
       await page.setContent(html, { waitUntil: 'networkidle0' });
