@@ -360,6 +360,8 @@ exports.generateAndDownloadCV = async (req, res) => {
 
   const html = generateCVHTML(student);
 
+  console.log('Chromium executable path:', puppeteer.executablePath());
+
   try {
     const browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox']
