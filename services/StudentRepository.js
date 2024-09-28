@@ -7,6 +7,7 @@ const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
 var { Offer } = require("../models/Offer");
+var OfferRepository = require("../services/OfferRepository");
 
 exports.insertStudentAfterLogin = async (studentData) => {
     try {
@@ -428,23 +429,23 @@ exports.downloadCV = async (req, res) => {
 
 exports.applyToOffer = async (studentId, offerId) => {
   try {
-    const student = await Student.findOne({ numETU: studentId });
-    const offer = await Offer.findOne(
-      { "offers.id": offerId },
-      { "offers.$": 1, type: 1 }
-    );
-
-    if (!student || !offer) {
+    const student = await Student.findOne({ numETU: studentId});
+  
+    if (!student) {
       return {
         success: false,
-        message: 'Étudiant ou offre introuvable'
+        message: 'Étudiant introuvable'
       };
     }
+    const offerDetails = await OfferRepository.getOfferDetails(offerId)
 
-    const alreadyApplied = await Offer.findOne({
-      "offers.id": offerId,
-      "offers.candidate.student": studentId
-    });
+    if (!offerDetails) {
+      return {
+        success: false,
+        message: 'Offre introuvable'
+      };
+    }
+    const alreadyApplied = offerDetails.candidate.some(c => c.student === Number(studentId));
 
     if (alreadyApplied) {
       return {
@@ -457,16 +458,17 @@ exports.applyToOffer = async (studentId, offerId) => {
       { "offers.id": offerId },
       { $push: { "offers.$.candidate": { student: studentId } } }
     );
-
+    
     return {
       success: true,
       message: 'Candidature soumise avec succès'
     };
-
   } catch (error) {
+    console.error("Erreur dans applyToOffer:", error);
     return {
       success: false,
-      message: 'Erreur lors de la candidature : ' + error.message
+      message: 'Erreur lors de la soumission de la candidature : ' + error.message
     };
   }
 };
+
