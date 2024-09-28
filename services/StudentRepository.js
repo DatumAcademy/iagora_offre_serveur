@@ -362,7 +362,6 @@ exports.generateAndDownloadCV = async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/opt/render/.cache/puppeteer/chrome',
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
@@ -377,7 +376,6 @@ exports.generateAndDownloadCV = async (req, res) => {
     }
 
     await page.pdf({ path: pdfPath, format: 'A4' });
-
     await browser.close();
 
     res.status(200).json({
