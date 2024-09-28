@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "start:dev": "nodemon start",
     "postinstall": "npx puppeteer install",
-    "build": "render-build.sh" 
+    "build": "./render-build.sh" 
   },
   "dependencies": {
     "axios": "^1.7.7",
