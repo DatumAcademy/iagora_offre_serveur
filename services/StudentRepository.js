@@ -361,8 +361,10 @@ exports.generateAndDownloadCV = async (req, res) => {
       const html = generateCVHTML(student);
 
       //const browser = await puppeteer.launch({ headless: true });
+      const browserFetcher = puppeteer.createBrowserFetcher();
+      const revisionInfo = await browserFetcher.download('129.0.6668.70');
       const browser = await puppeteer.launch({
-        headless: true,
+        executablePath: revisionInfo.executablePath,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
       
