@@ -348,7 +348,7 @@ const generateCVHTML = (student) => {
 
 exports.generateAndDownloadCV = async (req, res) => {
   const { numETU, email } = req.params;
-  
+
   const student = await Student.findOne({ numETU: numETU, email: email });
 
   if (!student) {
@@ -362,13 +362,20 @@ exports.generateAndDownloadCV = async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/opt/render/.cache/puppeteer/chrome',
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-    const page = await browser.newPage();
 
+    const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
-    const pdfPath = path.join(__dirname, `../generated/${student.first_name}_${student.last_name}_CV.pdf`);
+    const pdfDir = path.join(__dirname, '../generated');
+    const pdfPath = path.join(pdfDir, `${student.first_name}_${student.last_name}_CV.pdf`);
+
+    if (!fs.existsSync(pdfDir)) {
+      fs.mkdirSync(pdfDir, { recursive: true });
+    }
+
     await page.pdf({ path: pdfPath, format: 'A4' });
 
     await browser.close();
